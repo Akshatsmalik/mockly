@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowRight, CheckCircle, Star, Zap, Target, TrendingUp } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { buttonVariants, slideUpVariants, cardVariants, transition, stagger } from '../lib/motion'
-import Navbar from '../components/navbar'
+import Navbar from '../components/Navbar'
 
 export function HeroPromoPage() {
   const navigate = useNavigate()
@@ -52,7 +52,7 @@ export function HeroPromoPage() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
         className="relative z-50">
-        <Navbar className="shadow-sm mt-[20px] mb-[30px]" />
+        <Navbar action={{text:"Next",onClick:()=>{navigate('/interview')}}}  className="shadow-sm mt-[20px] mb-[30px]" />
     </motion.div>      {/* Hero Section */}
       <section className="relative mb-[70px] pt-10 pb-20 overflow-hidden">
         {/* Background gradient */}

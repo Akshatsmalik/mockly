@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './interviewpage.css';
-import Navbar from '../components/navbar';
+import Navbar from '../components/Navbar';
 
 
 const ReportDisplay = ({ data }) => {
@@ -129,8 +129,8 @@ export const InterviewPage = () => {
 
   return (
     <>
-      <Navbar className="shadow-sm mt-[20px] mb-[30px]" />
-    <div className="mockly-container">
+      <Navbar action={{text:"Next",onClick:()=>{navigate('/camera')}}} className="shadow-sm mt-[20px] mb-[50px]" />
+    <div className="mockly-container mt-7">
       <section className="round-selection">
         <button 
           className={`round-btn ${activeTab === 'hr' ? 'active' : ''}`}
@@ -177,19 +177,19 @@ export const InterviewPage = () => {
               </select>
             </div>
           </div> */}
-          <div className="config-group flex flex-col gap-3">
+          <div className="flex flex-col gap-2 rounded-xl align-middle justify-center">
             <label className="config-label">Upload your resume</label>
 
             <input
               type="file"
               accept=".pdf,.doc,.docx"
               onChange={(e) => setFile(e.target.files[0])}
-              className="border p-2 rounded"
+              className="border border-black p-2 rounded-md bg-gray-200"
             />
 
             <button
               onClick={handleUpload}
-              className="bg-blue-500 text-white px-4 py-2 rounded">
+              className="bg-blue-500 text-white py-2 rounded-xl">
               Upload Resume
             </button>
 

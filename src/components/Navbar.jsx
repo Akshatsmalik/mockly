@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function Navbar({ className }) {
+function Navbar({ action }) {
   const navigate = useNavigate();
 
   return (
-    <div className={`w-full px-[100px] mx-auto ${className}`}>
+    <div className={`w-full px-[100px] mx-auto `}>
       <header className="flex justify-between items-center px-4 py-5 bg-gray-50">
         
         {/* Logo Section */}
@@ -53,15 +53,18 @@ function Navbar({ className }) {
         </nav>
 
         {/* Back Button Section */}
+        <div className="w-[160px] h-[44px] flex items-center justify-end">
         <div className="flex items-center gap-6">
+          {action && (
           <button 
-            onClick={() => navigate(-1)}
+            onClick={action.onClick}
             className="bg-[#4a90e2] hover:bg-blue-600 text-white font-medium py-[10px] px-[32px] rounded-[10px] transition-all duration-200 shadow-sm"
           >
-            Back
+            {action.text}
           </button>
+          )}
         </div>
-
+        </div>
       </header>
     </div>
   );

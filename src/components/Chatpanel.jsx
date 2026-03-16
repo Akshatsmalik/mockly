@@ -15,8 +15,7 @@ const BotThinkingIndicator = () => (
 );
 
 
-
-const ChatPanel = (text1) => {
+function ChatPanel(text1){
 
   const [answers, setAnswers] = useState('');
   const [inputValue, setInputValue] = useState('');
@@ -25,9 +24,9 @@ const ChatPanel = (text1) => {
   const messagesEndRef = useRef(null);
 
   // Auto-scroll to bottom
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isBotThinking]);
+  // useEffect(() => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // }, [messages, isBotThinking]);
 
 
   const questions = async (answers) => {
@@ -66,6 +65,7 @@ const ChatPanel = (text1) => {
 
     getFirstQuestion();
   }, []);//when we havent passed anything react just executes useeffect once
+  // for the first message this useeffect is used
 
 
   const sendMessage = async () => {
@@ -105,14 +105,14 @@ const ChatPanel = (text1) => {
   
 
   return (
-    <div className="w-[380px] flex-shrink-0 bg-[#1A1D21] rounded-3xl p-6 flex flex-col shadow-2xl text-white">
+   <div className="w-[380px] flex-shrink-0 bg-[#1A1D21] rounded-3xl p-6 flex flex-col shadow-2xl text-white overflow-hidden">
       {/* Profile Image */}
       <div className="w-14 h-14 flex rounded-full border-2 border-white overflow-hidden shadow-lg bg-gray-200 mb-6 flex-shrink-0">
         <img src="/path-to-your-avatar.png" alt="Profile" className="w-full h-full justify-center object-cover" />
       </div>
 
       {/* Messages Area */}
-      <div className="flex-grow space-y-5 overflow-y-auto pr-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+       <div className="flex-grow min-h-0 space-y-5 overflow-y-auto pr-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         <AnimatePresence initial={false}>
           {messages.map((message) => (
             <motion.div

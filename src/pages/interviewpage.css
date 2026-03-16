@@ -116,11 +116,17 @@ body {
   display: flex;
   align-items: center;
   gap: 20px;
+  
 }
 
 .config-label {
   font-size: 22px;
   font-weight: 700;
+  margin-bottom:10px;
+}
+
+.custom-select{
+  margin-top: 17px;
 }
 
 .custom-select select,
