@@ -30,7 +30,7 @@ app = FastAPI(title="Interview bot")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins="https://mockly-frontend.onrender.com",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
