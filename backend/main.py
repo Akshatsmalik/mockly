@@ -30,7 +30,10 @@ app = FastAPI(title="Interview bot")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins="https://mockly-one.vercel.app",
+    allow_origins=[
+    "https://mockly-one.vercel.app",
+    "https://mockly-one.vercel.app/"
+],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
