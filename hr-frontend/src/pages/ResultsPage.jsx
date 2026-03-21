@@ -148,7 +148,7 @@ useEffect(() => {
           className="mb-8"
         >
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Hello, Akshat S Malik
+            Hello, User
           </h1>
           <p className="text-muted">You see your interview report here</p>
         </motion.div>
