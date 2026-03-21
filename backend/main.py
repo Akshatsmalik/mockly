@@ -117,7 +117,7 @@ def landing_page(response: Response, request: Request):
     session_id = request.cookies.get("session_id")
     if not session_id:
         session_id = create_session()
-        response.set_cookie(key="session_id", value=session_id, httponly=True, samesite="lax")
+        response.set_cookie(key="session_id", value=session_id, httponly=True, samesite="none", secure=True)
     session_db[session_id] = session_db.get(session_id, {}) 
     print("session_db:", session_db)
     return session_id
