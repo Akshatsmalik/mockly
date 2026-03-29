@@ -1,6 +1,6 @@
 # Mockly.AI - Interview Simulator
 
-🔗 **Live Demo:** [https://mockly-one.vercel.app/](https://mockly-one.vercel.app/)
+🔗 **Live Demo:** [https://mockly-one.vercel.app/](https://mockly-one.vercel.app/) (render takes time too boot up)
 
 ## 📌 Purpose
 **Mockly.AI** is an AI-powered mock interview simulator designed to help candidates thoroughly prepare for High-stakes HR and Technical (DSA) interviews. By analyzing the user's uploaded resume and factoring in the chosen domain (e.g., Software Engineering, AI/ML) and difficulty level, the simulator provides a highly tailored, interactive testing environment. Candidates receive dynamic follow-up questions, an embedded code editor for problem-solving, and a comprehensive end-of-interview report highlighting key areas of improvement.
