@@ -17,7 +17,19 @@ const VideoFeed = () => {
     const [showPermissionModal, setShowPermissionModal] = useState(false);
     // ─────────────────────────────────────────────────────────────
       const silenceTimer = useRef(null);
-
+    useEffect(() => {
+      console.log("Speech recognition supported:", browserSupportsSpeechRecognition);
+    
+      const recognition = SpeechRecognition.getRecognition();
+      if (recognition) {
+        recognition.onerror = (e) => console.error("SR ERROR:", e.error);
+        recognition.onresult = (e) => console.log("SR RESULT EVENT FIRED", e);
+        recognition.onend = () => console.log("SR ENDED");
+        recognition.onaudiostart = () => console.log("SR AUDIO STARTED - mic is actually capturing");
+      } else {
+        console.log("SR: getRecognition() returned null/undefined");
+      }
+    }, []);
     useEffect(() => {
         if (transcript) {
             clearTimeout(silenceTimer.current);
