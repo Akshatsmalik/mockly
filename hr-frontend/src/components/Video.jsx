@@ -31,6 +31,18 @@ const VideoFeed = () => {
         }
     }, [transcript]);
 
+    useEffect(() => {
+      console.log("Speech recognition supported:", browserSupportsSpeechRecognition);
+    }, []);
+    
+    useEffect(() => {
+      const recognition = SpeechRecognition.getRecognition();
+      if (recognition) {
+        recognition.onerror = (e) => console.error("Speech recognition error:", e.error);
+        recognition.onend = () => console.log("Speech recognition ended");
+      }
+    }, []);
+    
     const startListening = () => {
         console.log("starting to listen...")
         SpeechRecognition.startListening({
