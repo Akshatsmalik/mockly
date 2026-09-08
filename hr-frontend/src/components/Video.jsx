@@ -7,6 +7,7 @@ const VideoFeed = () => {
     const [micon, setmicon] = useState(false)
     const { transcript,resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
     const [text, settext] = useState('micisoff')
+    const [sttError, setSttError] = useState('')
     const { Data1, setData1 } = useContext(Data)
 
     // ── Camera state ──────────────────────────────────────────────
@@ -63,9 +64,24 @@ const VideoFeed = () => {
         });
     };
 
+    const isSpeechSupported = () => {
+        // Web Speech API requires a secure context (HTTPS or localhost)
+        if (typeof window !== 'undefined' && !window.isSecureContext) {
+            setSttError('Microphone requires a secure (HTTPS) connection.');
+            return false;
+        }
+        if (!browserSupportsSpeechRecognition) {
+            setSttError('Your browser does not support speech recognition. Please use Chrome or Edge.');
+            return false;
+        }
+        setSttError('');
+        return true;
+    };
+
     
     const micoff = () => {
         if (!micon) {
+            if (!isSpeechSupported()) return; // guard: show error and bail out
             console.log("mic is on")
             settext('micgoton')
             setmicon(true)
@@ -162,6 +178,14 @@ const VideoFeed = () => {
 
     return (
         <div className="relative w-full h-full flex-grow bg-white rounded-3xl overflow-hidden shadow-xl">
+            {/* STT not supported warning */}
+            {sttError && (
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-red-600 text-white text-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+                    <span>⚠️</span>
+                    <span>{sttError}</span>
+                    <button onClick={() => setSttError('')} className="ml-2 font-bold hover:opacity-70">✕</button>
+                </div>
+            )}
 
             {/* Placeholder when no stream */}
             {!stream && (
