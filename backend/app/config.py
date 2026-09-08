@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     app_name: str = "Mockly API"
     environment: str = "development"
-    allowed_origins: str = "http://localhost:5173,http://localhost:3000"
+    allowed_origins: str = "http://localhost:5173,http://localhost:3000,https://mockly-one.vercel.app"
     database_url: str = "sqlite:///./.data/mockly.db"
     max_resume_bytes: int = 5 * 1024 * 1024
     code_execution_url: str | None = None
