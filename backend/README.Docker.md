@@ -3,7 +3,9 @@
 When you're ready, start your application by running:
 `docker compose up --build`.
 
-Your application will be available at https://mockly-le44.onrender.com.
+Your application will be available at `http://localhost:8000`.
+
+Copy `.env.example` to `.env` and provide the required model credentials before starting. Set `CODE_EXECUTION_URL` only to an independently sandboxed code-execution service.
 
 ### Deploying your application to the cloud
 

@@ -14,6 +14,7 @@ import { buttonVariants, slideUpVariants, cardVariants, transition, stagger } fr
 import Navbar from '../components/Navbar'
 import Dataprovider from '../Hooks/Dataprovider'
 import { Data } from '../Hooks/Context'
+import api from '../api/client'
 
 export function HeroPromoPage() {
   const navigate = useNavigate()
@@ -52,12 +53,8 @@ export function HeroPromoPage() {
 useEffect(() => {
   if (!sessions) {
     const getData = async () => {
-      const res = await fetch("https://mockly-le44.onrender.com/", {
-        credentials: 'include',  
-      });
-      const id = await res.text();
-      console.log(id);   
-      setSessions(id);
+      const res = await api.get("/");
+      setSessions(res.data.session_id);
     };
     getData();
   }

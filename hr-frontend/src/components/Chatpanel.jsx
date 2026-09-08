@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
+import api from '../api/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Data } from '../Hooks/Context';
 import Dataprovider from '../Hooks/Dataprovider';
@@ -119,18 +120,13 @@ const numqRef = useRef(numq);
 
     const endpoint = round === 'HR' ? '/mainq' : '/maind';
 
-    const data = await fetch(`https://mockly-le44.onrender.com${endpoint}`, {
-      method: "POST",
-      credentials: 'include',
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    const data = await api.post(endpoint, {
         domain: domain,
         d_level: "easy",
         user: answers
-      }),
     });
 
-    const response = await data.text();
+    const response = data.data;
 
     conversationRef.current = [
       ...conversationRef.current,

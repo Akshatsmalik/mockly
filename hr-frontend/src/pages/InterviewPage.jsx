@@ -7,6 +7,7 @@ import { Data } from '../Hooks/Context';
 import { motion } from 'framer-motion';
 import noHistory from "../assets/sad.jpg" 
 import nerd1 from "../assets/nerd1.png" 
+import api from '../api/client';
 
 const ReportDisplay = ({ data }) => {
   const {results, setResults} = useContext(Data)
@@ -109,17 +110,8 @@ export const InterviewPage = () => {
     formData.append("file", file);
 
     try {
-      const response = await fetch("https://mockly-le44.onrender.com/getresume", {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        throw new Error("Server error");
-      }
-
-      const data = await response.json();
+      const response = await api.post('/getresume', formData);
+      const data = response.data;
       console.log(data.domain);
       setDomains(data.domain);
 
@@ -159,8 +151,8 @@ export const InterviewPage = () => {
 
   useEffect(() => {
     if (activeTab === "dsa" && dsaTopics.length === 0) {
-      fetch("https://mockly-le44.onrender.com/api/topics")
-        .then((res) => res.json())
+      api.get('/api/topics')
+        .then((res) => res.data)
         .then((data) => setDsaTopics(data.topics || []))
         .catch(() => setDsaTopics([]));
     }
@@ -190,28 +182,10 @@ export const InterviewPage = () => {
     setDsaError("");
 
     try {
-      const qRes = await fetch(
-        `https://mockly-le44.onrender.com/api/questions/random?topic=${encodeURIComponent(
-          dsaTopic
-        )}&difficulty=${encodeURIComponent(dsaDifficulty)}`
-      );
-      if (!qRes.ok) {
-        throw new Error("No question found for selected filters.");
-      }
-      const qData = await qRes.json();
-
-      const sessRes = await fetch("https://mockly-le44.onrender.com/api/session/start", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          question_id: qData.id,
-          duration_minutes: 30,
-        }),
-      });
-      if (!sessRes.ok) {
-        throw new Error("Failed to start DSA session.");
-      }
-      const sess = await sessRes.json();
+      const qRes = await api.get('/api/questions/random', { params: { topic: dsaTopic, difficulty: dsaDifficulty } });
+      const qData = qRes.data;
+      const sessRes = await api.post('/api/session/start', { question_id: qData.id, duration_minutes: 30 });
+      const sess = sessRes.data;
       const sid = sess.session_id;
 
       navigate(

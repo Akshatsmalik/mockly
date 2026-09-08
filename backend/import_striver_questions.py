@@ -67,7 +67,7 @@ def read_java_file(filepath):
         return ""
 
 # Scan Striver folder
-striver_root = "Strivers-A2Z-DSA-Course-Sheet-master"
+striver_root = "data/reference/Strivers-A2Z-DSA-Course-Sheet-master"
 new_questions = []
 
 for root, dirs, files in os.walk(striver_root):

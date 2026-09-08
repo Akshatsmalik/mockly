@@ -10,7 +10,9 @@ services:
       - "8000:8000"
     restart: always
     env_file:
-    - .env
+    - ./backend/.env
+    volumes:
+      - ./backend/.data:/app/.data
 
 
   frontend:

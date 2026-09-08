@@ -30,7 +30,7 @@ export default function Editor() {
 
   // Load question
   useEffect(() => {
-    api.get(`/questions/${id}`).then(r => {
+    api.get(`/api/questions/${id}`).then(r => {
       setQuestion(r.data);
       setCode(r.data[`starter_code_${lang}`] || "");
     });
@@ -52,13 +52,13 @@ export default function Editor() {
   }, [timeLeft]);
 
   const handleTimeUp = async () => {
-    await api.post(`/session/end?session_id=${sessionId}`);
+    await api.post(`/api/session/end?session_id=${sessionId}`);
     navigate(`/results?session=${sessionId}&timeout=true`);
   };
 
   const runCode = async () => {
     setRunning(true);
-    const res = await api.post("/judge/run", { code, language: lang, stdin: customInput });
+    const res = await api.post("/api/judge/run", { code, language: lang, stdin: customInput });
     setCustomOutput(res.data.stdout || res.data.stderr || "No output");
     setActiveTab("custom");
     setRunning(false);
@@ -68,7 +68,7 @@ export default function Editor() {
     setSubmitting(true);
     
     // 1. Submit code for standard test cases
-    const res = await api.post("/judge/submit", {
+    const res = await api.post("/api/judge/submit", {
       code, language: lang,
       question_id: Number(id),
       session_id: sessionId,
@@ -79,7 +79,7 @@ export default function Editor() {
     
     // 2. Run Gemini Evaluation
     try {
-      const evalRes = await api.post("/judge/evaluate", {
+      const evalRes = await api.post("/api/judge/evaluate", {
         code, 
         topic: question.topic || "Data Structures and Algorithms",
         question: question.description,
@@ -117,7 +117,6 @@ export default function Editor() {
         <div className="flex gap-2">
           {[0, 0.2, 0.4].map((delay, i) => (
             <motion.div
-              // eslint-disable-next-line react/no-array-index-key
               key={i}
               className="w-2 h-2 bg-gray-400 rounded-full"
               animate={{ scale: [1, 1.4, 1] }}

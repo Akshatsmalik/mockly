@@ -13,13 +13,13 @@ export default function DsaHome() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get("/topics").then((r) => setTopics(r.data.topics || []));
+    api.get("/api/topics").then((r) => setTopics(r.data.topics || []));
   }, []);
 
   useEffect(() => {
     if (selectedTopic) {
       api
-        .get("/questions", { params: { topic: selectedTopic, difficulty } })
+        .get("/api/questions", { params: { topic: selectedTopic, difficulty } })
         .then((r) => setQuestions(r.data || []));
     } else {
       setQuestions([]);
@@ -29,7 +29,7 @@ export default function DsaHome() {
 
   const startSession = async () => {
     if (!selectedQ) return;
-    const res = await api.post("/session/start", {
+    const res = await api.post("/api/session/start", {
       question_id: selectedQ.id,
       duration_minutes: duration,
     });

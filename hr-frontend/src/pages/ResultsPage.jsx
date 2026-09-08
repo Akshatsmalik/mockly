@@ -9,6 +9,7 @@ import { ArrowUpAZ, RefreshCw } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Data } from '../Hooks/Context';  
+import api from '../api/client';
 
 
 
@@ -31,10 +32,8 @@ useEffect(() => {
   const remarks1 = async () => {
     let data;
     try {
-      const response = await fetch('https://mockly-le44.onrender.com/evaluatehr', {
-        credentials: 'include'
-      });
-      data = await response.json();
+      const response = await api.get('/evaluatehr');
+      data = response.data;
       console.log(data);
       console.log(data.strong_points);
       console.log(data.weak_points);
