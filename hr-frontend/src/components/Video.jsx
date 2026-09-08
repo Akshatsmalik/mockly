@@ -1,111 +1,73 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import ChatPanel from './Chatpanel';
 import { Data } from '../Hooks/Context';
+import { useDeepgramSTT } from '../Hooks/useDeepgramSTT';
 
 const VideoFeed = () => {
-    const [micon, setmicon] = useState(false)
-    const { transcript,resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
-    const [text, settext] = useState('micisoff')
-    const [sttError, setSttError] = useState('')
-    const { Data1, setData1 } = useContext(Data)
+    const [micon, setmicon] = useState(false);
+    const { Data1, setData1 } = useContext(Data);
 
     // ── Camera state ──────────────────────────────────────────────
     const mainVideoRef = useRef(null);
     const [stream, setStream] = useState(null);
     const [cameraOn, setCameraOn] = useState(false);
-    const [error, setError] = useState('');
+    const [cameraError, setCameraError] = useState('');
     const [showPermissionModal, setShowPermissionModal] = useState(false);
     // ─────────────────────────────────────────────────────────────
-      const silenceTimer = useRef(null);
+
+    const silenceTimer = useRef(null);
+
+    // ── Deepgram STT ──────────────────────────────────────────────
+    const {
+        transcript,
+        isListening,
+        startListening,
+        stopListening,
+        resetTranscript,
+        error: sttError,
+        isSupported,
+    } = useDeepgramSTT({
+        language: 'en-IN',
+        onFinalTranscript: (text) => {
+            setData1(text);
+        },
+    });
+    // ─────────────────────────────────────────────────────────────
+
+    // Sync transcript to global context on every update
     useEffect(() => {
-      console.log("Speech recognition supported:", browserSupportsSpeechRecognition);
-    
-      const recognition = SpeechRecognition.getRecognition();
-      if (recognition) {
-        recognition.onerror = (e) => console.error("SR ERROR:", e.error);
-        recognition.onresult = (e) => console.log("SR RESULT EVENT FIRED", e);
-        recognition.onend = () => console.log("SR ENDED");
-        recognition.onaudiostart = () => console.log("SR AUDIO STARTED - mic is actually capturing");
-      } else {
-        console.log("SR: getRecognition() returned null/undefined");
-      }
-    }, []);
+        if (transcript) {
+            setData1(transcript);
+            console.log(`[STT] transcript: ${transcript}`);
+        }
+    }, [transcript]);
+
+    // Auto-stop mic after 5 seconds of silence
     useEffect(() => {
         if (transcript) {
             clearTimeout(silenceTimer.current);
-
             silenceTimer.current = setTimeout(() => {
-                SpeechRecognition.stopListening();
+                stopListening();
                 setmicon(false);
                 setData1(transcript);
                 resetTranscript();
             }, 5000);
         }
+        return () => clearTimeout(silenceTimer.current);
     }, [transcript]);
 
-    useEffect(() => {
-      console.log("Speech recognition supported:", browserSupportsSpeechRecognition);
-    }, []);
-    
-    useEffect(() => {
-      const recognition = SpeechRecognition.getRecognition();
-      if (recognition) {
-        recognition.onerror = (e) => console.error("Speech recognition error:", e.error);
-        recognition.onend = () => console.log("Speech recognition ended");
-      }
-    }, []);
-    
-    const startListening = () => {
-        console.log("starting to listen...")
-        SpeechRecognition.startListening({
-            continuous: true,
-            language: "en-IN",
-        });
-    };
-
-    const isSpeechSupported = () => {
-        // Web Speech API requires a secure context (HTTPS or localhost)
-        if (typeof window !== 'undefined' && !window.isSecureContext) {
-            setSttError('Microphone requires a secure (HTTPS) connection.');
-            return false;
-        }
-        if (!browserSupportsSpeechRecognition) {
-            setSttError('Your browser does not support speech recognition. Please use Chrome or Edge.');
-            return false;
-        }
-        setSttError('');
-        return true;
-    };
-
-    
+    // ── Mic toggle ────────────────────────────────────────────────
     const micoff = () => {
         if (!micon) {
-            if (!isSpeechSupported()) return; // guard: show error and bail out
-            console.log("mic is on")
-            settext('micgoton')
-            setmicon(true)
-            startListening()
+            setmicon(true);
+            startListening();
         } else {
-            console.log("mic is off")
-            setmicon(false)
-            SpeechRecognition.stopListening()
-            resetTranscript()
-            settext('micgotoffagain')
+            setmicon(false);
+            stopListening();
+            resetTranscript();
         }
-    }
-
-    useEffect(() => {
-        if (transcript) {
-            setData1(transcript)
-            console.log(`wokring context ${Data1}`)
-        }
-
-    }, [transcript])
-
-    useEffect(() => {
-        console.log(transcript)
-    }, [transcript])
+    };
+    // ─────────────────────────────────────────────────────────────
 
     // ── Camera handlers ───────────────────────────────────────────
     const startMedia = async () => {
@@ -116,12 +78,12 @@ const VideoFeed = () => {
             });
             setStream(mediaStream);
             setCameraOn(true);
-            setError('');
+            setCameraError('');
             if (mainVideoRef.current) {
                 mainVideoRef.current.srcObject = mediaStream;
             }
         } catch (err) {
-            setError('Could not access camera. Please check permissions.');
+            setCameraError('Could not access camera. Please check permissions.');
             console.error('Camera error:', err);
         }
     };
@@ -137,25 +99,23 @@ const VideoFeed = () => {
         setCameraOn(false);
     };
 
-    
-  const toggleCamera = async () => {
-      if (cameraOn) {
-          stopMedia();
-      } else {
-          // Check if permission is already granted
-          try {
-              const result = await navigator.permissions.query({ name: 'camera' });
-              if (result.state === 'granted') {
-                  startMedia(); // skip modal, go straight to camera
-              } else {
-                  setShowPermissionModal(true); // only show modal if not yet granted
-              }
-          } catch {
-              // permissions.query not supported in some browsers (e.g. Firefox)
-              setShowPermissionModal(true);
-          }
-      }
-  };
+    const toggleCamera = async () => {
+        if (cameraOn) {
+            stopMedia();
+        } else {
+            try {
+                const result = await navigator.permissions.query({ name: 'camera' });
+                if (result.state === 'granted') {
+                    startMedia();
+                } else {
+                    setShowPermissionModal(true);
+                }
+            } catch {
+                // permissions.query not supported in some browsers (e.g. Firefox)
+                setShowPermissionModal(true);
+            }
+        }
+    };
 
     const handleUserConfirm = () => {
         setShowPermissionModal(false);
@@ -178,12 +138,12 @@ const VideoFeed = () => {
 
     return (
         <div className="relative w-full h-full flex-grow bg-white rounded-3xl overflow-hidden shadow-xl">
-            {/* STT not supported warning */}
+
+            {/* STT error banner */}
             {sttError && (
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-red-600 text-white text-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-red-600 text-white text-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2 whitespace-nowrap">
                     <span>⚠️</span>
                     <span>{sttError}</span>
-                    <button onClick={() => setSttError('')} className="ml-2 font-bold hover:opacity-70">✕</button>
                 </div>
             )}
 
@@ -198,7 +158,7 @@ const VideoFeed = () => {
                     >
                         Start Camera
                     </button>
-                    {error && <p className="text-red-500 mt-3 text-sm">{error}</p>}
+                    {cameraError && <p className="text-red-500 mt-3 text-sm">{cameraError}</p>}
                 </div>
             )}
 
@@ -242,21 +202,21 @@ const VideoFeed = () => {
                     </button>
 
                     {/* Mic Toggle */}
-                  <button
-                    onClick={micoff}
-                    title={micon ? 'Turn off mic' : 'Turn on mic'}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors ${
-                      micon ? 'bg-black hover:bg-gray-800' : 'bg-red-500 hover:bg-red-600'
-                    }`}
-                  >
-                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                      {micon ? (
-                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z" />
-                      ) : (
-                        <path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z" />
-                      )}
-                    </svg>
-                  </button>
+                    <button
+                        onClick={micoff}
+                        title={micon ? 'Turn off mic' : 'Turn on mic'}
+                        className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors ${
+                            micon ? 'bg-black hover:bg-gray-800' : 'bg-red-500 hover:bg-red-600'
+                        }`}
+                    >
+                        <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                            {micon ? (
+                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z" />
+                            ) : (
+                                <path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z" />
+                            )}
+                        </svg>
+                    </button>
                 </div>
             </div>
             )
@@ -274,7 +234,7 @@ const VideoFeed = () => {
                         boxShadow: "0 20px 60px rgba(0,0,0,0.3)"
                     }}>
                         <div style={{ fontSize: "48px", marginBottom: "16px" }}>📷🎙️</div>
-                        <h2 style={{ marginBottom: "8px" }}>Camera & Microphone Access</h2>
+                        <h2 style={{ marginBottom: "8px" }}>Camera &amp; Microphone Access</h2>
                         <p style={{ color: "#666", marginBottom: "24px" }}>
                             This app needs access to your camera and microphone to start the call.
                         </p>
