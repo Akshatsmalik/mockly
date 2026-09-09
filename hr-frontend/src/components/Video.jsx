@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import ChatPanel from './Chatpanel';
 import { Data } from '../Hooks/Context';
 import { useDeepgramSTT } from '../Hooks/useDeepgramSTT';
@@ -17,7 +17,12 @@ const VideoFeed = () => {
 
     const silenceTimer = useRef(null);
 
-    // ── Deepgram STT ──────────────────────────────────────────────
+    // Memoize so onFinalTranscript doesn't change every render
+    // (prevents startListening from recreating and closing the WebSocket mid-connect)
+    const handleFinalTranscript = useCallback((text) => {
+        setData1(text);
+    }, []);
+
     const {
         transcript,
         isListening,
@@ -28,11 +33,14 @@ const VideoFeed = () => {
         isSupported,
     } = useDeepgramSTT({
         language: 'en-IN',
-        onFinalTranscript: (text) => {
-            setData1(text);
-        },
+        onFinalTranscript: handleFinalTranscript,
     });
     // ─────────────────────────────────────────────────────────────
+
+    // Stop mic on unmount
+    useEffect(() => {
+        return () => { stopListening(); };
+    }, []);
 
     // Sync transcript to global context on every update
     useEffect(() => {
