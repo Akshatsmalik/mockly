@@ -80,13 +80,15 @@ export function useDeepgramSTT({ language = 'en-IN', onFinalTranscript } = {}) {
             const params = new URLSearchParams({
                 token: apiKey,
                 language,
-                model: 'nova-2',
+                model: 'nova',
                 smart_format: 'true',
                 interim_results: 'true',
                 punctuate: 'true',
                 endpointing: '300',
             });
             const url = `wss://api.deepgram.com/v1/listen?${params.toString()}`;
+            console.log('[Deepgram] Connecting to:', url.replace(apiKey, 'KEY_HIDDEN'));
+
             const ws = new WebSocket(url);
             wsRef.current = ws;
 
