@@ -12,7 +12,7 @@ from langchain_groq import ChatGroq
 
 load_dotenv()
 os.environ["GROQ_API_KEY"]=os.getenv("GROQ_API_KEY")   
-model = ChatGroq(model="llama-3.1-70b-versatile", temperature=0.7)
+model = ChatGroq(model="openai/gpt-oss-120b", temperature=0.7)
 
 
 
