@@ -76,9 +76,9 @@ export function useDeepgramSTT({ language = 'en-IN', onFinalTranscript } = {}) {
             streamRef.current = stream;
 
             // 2. Build Deepgram WebSocket URL
-            // Token passed as query param — the supported browser auth method
+            // Auth is passed via WebSocket subprotocol (browser-compatible method)
+            // ?token= query param doesn't work reliably in browsers for new Deepgram accounts
             const params = new URLSearchParams({
-                token: apiKey,
                 language,
                 model: 'nova',
                 smart_format: 'true',
@@ -87,9 +87,10 @@ export function useDeepgramSTT({ language = 'en-IN', onFinalTranscript } = {}) {
                 endpointing: '300',
             });
             const url = `wss://api.deepgram.com/v1/listen?${params.toString()}`;
-            console.log('[Deepgram] Connecting to:', url.replace(apiKey, 'KEY_HIDDEN'));
+            console.log('[Deepgram] Connecting (subprotocol auth):', url);
+            // Pass key as subprotocol — this is how browsers authenticate with Deepgram
+            const ws = new WebSocket(url, ['token', apiKey]);
 
-            const ws = new WebSocket(url);
             wsRef.current = ws;
 
             ws.onopen = () => {
