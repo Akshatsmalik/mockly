@@ -12,7 +12,7 @@ from langchain_groq import ChatGroq
 
 load_dotenv()
 os.environ["GROQ_API_KEY"]=os.getenv("GROQ_API_KEY")   
-model = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7,max_tokens=100)
+model = ChatGroq(model="llama-3.1-70b-versatile", temperature=0.7,max_tokens=100)
 
 class diffuculty_level(BaseModel):
     domain: str = Field(description="the professional domain identified from the resume")

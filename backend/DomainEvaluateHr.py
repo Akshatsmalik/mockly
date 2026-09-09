@@ -15,7 +15,7 @@ from GetDomain import domain
 load_dotenv()
 
 os.environ["GROQ_API_KEY"]=os.getenv("GROQ_API_KEY")   
-model = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7)
+model = ChatGroq(model="llama-3.1-70b-versatile", temperature=0.7)
 # os.environ["GOOGLE_API_KEY"] = os.getenv("GEMINI_API_KEY2")
 
 # model = ChatGoogleGenerativeAI(

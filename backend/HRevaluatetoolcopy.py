@@ -204,7 +204,7 @@ from langchain_core.runnables import RunnableLambda
 def generate_questions_based_hr(example, str_history, domain, question_count):
     load_dotenv()
     os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
-    model = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7, max_tokens=150)
+    model = ChatGroq(model="llama-3.1-70b-versatile", temperature=0.7, max_tokens=150)
 
     difficulty_prompt = PromptTemplate(
         input_variables=['domain', 'str_history'],
@@ -289,7 +289,7 @@ def generate_questions_based_on_domain(str_history, domain, resume_text, example
     load_dotenv()
 
     os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY2")
-    model = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7, max_tokens=150)
+    model = ChatGroq(model="llama-3.1-70b-versatile", temperature=0.7, max_tokens=150)
 
     diff_template = """Role: Tech Interview Evaluator. 
                         Domain: {domain}
