@@ -93,8 +93,8 @@ export const InterviewPage = () => {
   const [error, setError] = useState("");
   const [domainMode, setDomainMode] = useState("automatic"); 
   const [manualDomain, setManualDomain] = useState("Web development");
-  const { round, setRound, numq, setNumq, domain, setDomain, results } = useContext(Data)
-  const isValid = numq > 0 && numq <= 10;
+  const { round, setRound, numq, setNumq, domain, setDomain, results, customTopics, setCustomTopics } = useContext(Data)
+  const isValid = numq > 0 && numq <= 30;
   const [dsaDifficulty, setDsaDifficulty] = useState("Medium");
   const [dsaTopic, setDsaTopic] = useState("");
   const [dsaTopics, setDsaTopics] = useState([]);
@@ -131,11 +131,14 @@ export const InterviewPage = () => {
       return;
     }
     if (!isValid) {
-      setError("Enter number of questions between 1 and 10");
+      setError("Enter number of questions between 1 and 30");
       return;
     }
 
-    const selectedDomain = domainMode === "automatic" ? domains : manualDomain;
+    const rawDomain = domainMode === 'automatic' ? domains : manualDomain;
+    const selectedDomain = rawDomain.startsWith('__others__:')
+      ? rawDomain.replace('__others__:', '').trim()
+      : rawDomain;
 
     setError("");
     setDomain(selectedDomain);
@@ -235,7 +238,7 @@ export const InterviewPage = () => {
 
 
 
-
+        
         <main className="main-card">
           <div className="config-row">
 
@@ -297,8 +300,19 @@ export const InterviewPage = () => {
                     <option value="Web development">Web development</option>
                     <option value="Data Science">Data Science</option>
                     <option value="Cloud Computing">Cloud Computing</option>
+                    <option value="Cybersecurity">Cybersecurity</option>
+                    <option value="__others__">Others (type below)</option>
                   </select>
                 </div>
+              )}
+
+              {domainMode === "manual" && manualDomain === '__others__' && (
+                <input
+                  type="text"
+                  placeholder="e.g. DevOps, Blockchain, Game Dev..."
+                  className="mt-2 border border-gray-300 rounded-lg px-3 py-2 text-sm w-full outline-none focus:border-blue-400"
+                  onChange={(e) => setManualDomain('__others__:' + e.target.value)}
+                />
               )}
 
               {domainMode === "automatic" && (
@@ -309,18 +323,30 @@ export const InterviewPage = () => {
             </div>
 
             <div className="config-group flex flex-col gap-1">
+              <label className="config-label">Custom Topics <span className="text-gray-400 font-normal text-xs">(optional)</span></label>
+              <input
+                type="text"
+                value={customTopics}
+                onChange={(e) => setCustomTopics(e.target.value)}
+                placeholder="e.g. React Hooks, System Design, Docker..."
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400"
+              />
+              <span className="text-xs text-gray-400">Add topics you want to be specifically asked about</span>
+            </div>
+
+            <div className="config-group flex flex-col gap-1">
               <label className="config-label">Number of Questions</label>
               <input
                 value={numq}
                 type="number"
                 min="1"
-                max="10"
+                max="30"
                 className="number-input"
-                placeholder="Please enter under 10"
+                placeholder="1 to 30"
                 onChange={(e) => setNumq(Number(e.target.value))}
               />
-              {numq > 10 && (
-                <span className="text-red-500 text-xs mt-1">Maximum 10 questions allowed.</span>
+              {numq > 30 && (
+                <span className="text-red-500 text-xs mt-1">Maximum 30 questions allowed.</span>
               )}
             </div>
             </>

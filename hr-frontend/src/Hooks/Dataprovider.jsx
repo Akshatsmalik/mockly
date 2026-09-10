@@ -44,6 +44,7 @@ function Dataprovider({ children }) {
     const [results,     setResults]     = useSessionState("mockly_results",      "");
     const [conversation,setConversation]= useSessionState("mockly_conversation", []);
     const [sessions,    setSessions]    = useSessionState("mockly_sessions",     null);
+    const [customTopics, setCustomTopics] = useSessionState('mockly_custom_topics', '');
 
     return (
         <Data.Provider value={{
@@ -55,6 +56,7 @@ function Dataprovider({ children }) {
             conversation,setConversation,
             results,     setResults,
             sessions,    setSessions,
+            customTopics, setCustomTopics,
         }}>
             {children}
         </Data.Provider>

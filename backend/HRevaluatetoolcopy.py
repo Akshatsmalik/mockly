@@ -201,10 +201,12 @@ def evaluate_hr(str_history: dict) -> str:
 import random
 from langchain_core.runnables import RunnableLambda
 
-def generate_questions_based_hr(example, str_history, domain, question_count):
+def generate_questions_based_hr(example, str_history, domain, question_count, custom_topics=""):
     load_dotenv()
     os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
     model = ChatGroq(model="openai/gpt-oss-120b", temperature=0.7, max_tokens=150)
+
+    effective_domain = f"{domain} (also focus on: {custom_topics})" if custom_topics.strip() else domain
 
     difficulty_prompt = PromptTemplate(
         input_variables=['domain', 'str_history'],
@@ -237,7 +239,7 @@ def generate_questions_based_hr(example, str_history, domain, question_count):
             | model
             | StrOutputParser()
             | RunnableLambda(lambda d_level: {       
-                "domain": domain,
+                "domain": effective_domain,
                 "d_level": d_level.strip(),
                 "str_history": str_history,
                 "example": example
@@ -250,7 +252,7 @@ def generate_questions_based_hr(example, str_history, domain, question_count):
     else:
         full_chain = (
             RunnableLambda(lambda _: {
-                "domain": domain,
+                "domain": effective_domain,
                 "d_level": "SAME",
                 "str_history": str_history,
                 "example": example
@@ -265,7 +267,7 @@ def generate_questions_based_hr(example, str_history, domain, question_count):
     usage_handler = UsageMetadataCallbackHandler()
     groq_limiter.wait_if_needed(estimated_tokens=estimated_tokens)
     results = full_chain.invoke(
-        {"domain": domain, "str_history": str_history},
+        {"domain": effective_domain, "str_history": str_history},
         config={"callbacks": [usage_handler]}
     )
 
@@ -285,11 +287,13 @@ def generate_questions_based_hr(example, str_history, domain, question_count):
 
 
 
-def generate_questions_based_on_domain(str_history, domain, resume_text, example,question_count):
+def generate_questions_based_on_domain(str_history, domain, resume_text, example, question_count, custom_topics=""):
     load_dotenv()
 
     os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY2")
     model = ChatGroq(model="openai/gpt-oss-120b", temperature=0.7, max_tokens=150)
+
+    effective_domain = f"{domain} (also focus on: {custom_topics})" if custom_topics.strip() else domain
 
     diff_template = """Role: Tech Interview Evaluator. 
                         Domain: {domain}
@@ -322,7 +326,7 @@ def generate_questions_based_on_domain(str_history, domain, resume_text, example
             | model
             | StrOutputParser()
             | RunnableLambda(lambda d: {
-                "domain": domain,
+                "domain": effective_domain,
                 "resume_text": resume_text, 
                 "d_level": d.strip(),
                 "str_history": str_history,
@@ -338,7 +342,7 @@ def generate_questions_based_on_domain(str_history, domain, resume_text, example
     else:
         full_chain = (
             RunnableLambda(lambda _: {
-                "domain": domain,
+                "domain": effective_domain,
                 "resume_text": current_resume, 
                 "d_level": "SAME",
                 "str_history": str_history,
@@ -355,7 +359,7 @@ def generate_questions_based_on_domain(str_history, domain, resume_text, example
     
     results = full_chain.invoke(
         {
-            "domain": domain, 
+            "domain": effective_domain, 
             "str_history": str_history, 
             "resume_text": resume_text
         },

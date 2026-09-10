@@ -25,6 +25,7 @@ class InterviewQuestionRequest(BaseModel):
     domain: str = Field(min_length=1, max_length=120)
     d_level: str = "easy"
     user: str = Field(default="", max_length=6000)
+    custom_topics: str = Field(default="", max_length=500)
 
 
 def session_id_for(request: Request, response: Response) -> str:
@@ -89,9 +90,10 @@ def ask_question(body: InterviewQuestionRequest, request: Request, response: Res
             "\n".join(summary),
             "\n".join(f"Q: {key}" for key in HR_EXAMPLES),
             count,
+            body.custom_topics,
         )
     else:
-        question = generate_questions_based_hr(HR_EXAMPLES, recent_history, body.domain, count)
+        question = generate_questions_based_hr(HR_EXAMPLES, recent_history, body.domain, count, body.custom_topics)
     history.append({"BOT": question})
     store.update(session_id, payload)
     return question

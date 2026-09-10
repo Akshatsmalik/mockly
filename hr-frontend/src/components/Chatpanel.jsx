@@ -110,6 +110,7 @@ function ChatPanel() {
 
   const messagesEndRef = useRef(null);
   const { Data1, setData1, numq } = useContext(Data);
+  const { customTopics } = useContext(Data);
   const { questionc, setQuestionc } = useContext(Data);
   const { round } = useContext(Data);
   const { domain } = useContext(Data);
@@ -139,7 +140,8 @@ function ChatPanel() {
     const data = await api.post(endpoint, {
       domain: domain,
       d_level: "easy",
-      user: answers
+      user: answers,
+      custom_topics: customTopics || ''
     });
 
     const response = data.data;
